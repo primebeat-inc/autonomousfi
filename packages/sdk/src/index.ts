@@ -19,4 +19,4 @@ export {
 } from './types.js';
 export { AutonomousFiError } from './errors.js';
 
-export const SDK_VERSION = '0.0.1';
+export const SDK_VERSION = '0.1.0';
