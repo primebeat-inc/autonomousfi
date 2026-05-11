@@ -6,6 +6,7 @@ dist/
 build/
 target/
 *.log
+*.tsbuildinfo
 coverage/
 .vscode/
 .idea/
