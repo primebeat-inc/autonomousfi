@@ -423,7 +423,7 @@ GitHub Actions → forge test + cargo test + vitest + Risc0 prove (mocked dev mo
 
 | # | 問い | いつ決めるか | 決定主体 |
 |---|---|---|---|
-| OQ-1 | License (Apache 2.0 vs MIT vs dual) | Phase 1 末、public repo push 前 | 社長 + 林 (法務観点) |
+| OQ-1 | License (Apache 2.0 vs MIT vs dual) [Resolved 2026-05-12: Apache 2.0 per ADR-0006] | Phase 1 末、public repo push 前 | 社長 + 林 (法務観点) |
 | OQ-2 | Plasma mainnet 接続の最終構成 (RPC provider, indexer) | Phase 2 中 | 社長 + Claude Code |
 | OQ-3 | Solidity audit firm 選定 (Trail of Bits / OpenZeppelin / Spearbit) | Phase 2 中 | 社長 (見積比較) |
 | OQ-4 | ZK audit firm 選定 (Veridise / zkSecurity) | Phase 2 中 | 社長 + 佐藤 |

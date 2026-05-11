@@ -59,7 +59,7 @@ AUTON Program 2026 Kickoff / 2026年5月17日
 
 ## 5. AutonomousFi Agent の紹介
 
-- 本日 public 化: `primebeat-inc/autonomousfi` (Apache 2.0 候補、ライセンスは Phase 1 末確定)
+- 本日 public 化: `primebeat-inc/autonomousfi` (Apache 2.0 (Phase 1 末確定済み))
 - Whuffie 論文 Theorem 2 の構成的メカニズムを「動く SDK」として実装した、agent-to-agent 決済 + 信用基盤
 - **縦統合スタック**:
   - **Tether QVAC**: オンデバイスで稼働するローカル LLM judge

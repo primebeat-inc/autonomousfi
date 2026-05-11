@@ -19,6 +19,7 @@ Planned for Phase 2 (2026-08+): Solidity contracts (EscrowVault, HostageBond, Se
 - AUTON 2026-05-17 keynote deck (12 slides), speaker notes, demo recording placeholder, 5/17 morning rehearsal script
 - GitHub Actions CI with `permissions: contents: read`, `concurrency.cancel-in-progress`, and brand-rule grep gate (blocks em dashes and Web3/Web2 buzzwords in markdown)
 - Apache 2.0 LICENSE, CONTRIBUTING, ROADMAP, README, QUICKSTART
+- License decision **confirmed as Apache 2.0** (ADR-0006, 2026-05-12); resolves spec OQ-1
 
 ### Quality bar
 
