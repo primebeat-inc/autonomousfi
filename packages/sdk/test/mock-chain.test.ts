@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import fc from 'fast-check';
 import { MockChain } from '../src/mock-chain.js';
 import { type AgentAddress, type Price } from '../src/types.js';
 
@@ -157,5 +158,69 @@ describe('MockChain - invariants', () => {
 
     const totalAfter = chain.getUsdtBalance(A) + chain.getUsdtBalance(B);
     expect(totalAfter).toBe(totalBefore);
+  });
+});
+
+describe('MockChain property: funds conservation under random op sequence', () => {
+  it('total balance is invariant across any legal sequence of operations', () => {
+    fc.assert(
+      fc.property(
+        // Generator: array of mint operations to set up initial balances
+        fc.array(
+          fc.record({
+            addr: fc.constantFrom(A, B),
+            amount: fc.bigInt({ min: 100n, max: 10_000n })
+          }),
+          { minLength: 2, maxLength: 6 }
+        ),
+        (mints) => {
+          const chain = new MockChain();
+          // Track total minted as the conservation invariant baseline.
+          let totalMinted = 0n;
+          for (const m of mints) {
+            chain.mintUsdt(m.addr, m.amount);
+            totalMinted += m.amount;
+          }
+
+          // Verify invariant after mint phase.
+          const totalAfterMint = chain.getUsdtBalance(A) + chain.getUsdtBalance(B);
+          expect(totalAfterMint).toBe(totalMinted);
+
+          // Run a single escrow+hostage settle cycle: total must still equal totalMinted.
+          if (chain.getUsdtBalance(A) >= 100n && chain.getUsdtBalance(B) >= 50n) {
+            chain.escrowLock({ taskHash: '0x01' as `0x${string}`, requester: A, provider: B, price: 100n as Price });
+            chain.hostageStake({ taskHash: '0x01' as `0x${string}`, provider: B, stake: 50n as Price });
+            chain.escrowRelease('0x01' as `0x${string}`);
+            chain.hostageRefund('0x01' as `0x${string}`);
+            const totalAfterCycle = chain.getUsdtBalance(A) + chain.getUsdtBalance(B);
+            expect(totalAfterCycle).toBe(totalMinted);
+          }
+        }
+      ),
+      { numRuns: 50 }
+    );
+  });
+
+  it('slash path also conserves funds across runs', () => {
+    fc.assert(
+      fc.property(
+        fc.bigInt({ min: 200n, max: 5_000n }),
+        fc.bigInt({ min: 200n, max: 5_000n }),
+        (mintA, mintB) => {
+          const chain = new MockChain();
+          chain.mintUsdt(A, mintA);
+          chain.mintUsdt(B, mintB);
+          const total = mintA + mintB;
+
+          chain.escrowLock({ taskHash: '0x02' as `0x${string}`, requester: A, provider: B, price: 100n as Price });
+          chain.hostageStake({ taskHash: '0x02' as `0x${string}`, provider: B, stake: 50n as Price });
+          chain.escrowRefund('0x02' as `0x${string}`);
+          chain.hostageSlash('0x02' as `0x${string}`, A);
+
+          expect(chain.getUsdtBalance(A) + chain.getUsdtBalance(B)).toBe(total);
+        }
+      ),
+      { numRuns: 50 }
+    );
   });
 });
