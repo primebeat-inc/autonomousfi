@@ -48,14 +48,20 @@ def invoke_paid_agent(
         "resultText": result_text,
     }
     cwd = os.environ.get("AUTONOMOUSFI_REPO_ROOT") or str(_find_repo_root())
-    cp = subprocess.run(
-        ["pnpm", "--silent", "--filter", "@autonomousfi/sdk", "run", "ipc"],
-        input=json.dumps(payload),
-        text=True,
-        capture_output=True,
-        check=True,
-        cwd=cwd,
-    )
+    try:
+        cp = subprocess.run(
+            ["pnpm", "--silent", "--filter", "@autonomousfi/sdk", "run", "ipc"],
+            input=json.dumps(payload),
+            text=True,
+            capture_output=True,
+            check=True,
+            cwd=cwd,
+            timeout=30,
+        )
+    except subprocess.TimeoutExpired as e:
+        raise RuntimeError(
+            f"ipc subprocess timed out after 30s. cwd={cwd!r}. partial stdout: {e.stdout!r}, stderr: {e.stderr!r}"
+        ) from e
     # The TS IPC writes a single JSON line to stdout. Take the last non-empty line
     # to be defensive against any pnpm/tsx prelude that slipped past --silent.
     lines = [ln for ln in cp.stdout.strip().splitlines() if ln.strip()]
@@ -63,5 +69,10 @@ def invoke_paid_agent(
         raise RuntimeError(
             f"ipc subprocess produced no stdout. stderr: {cp.stderr!r}"
         )
-    out = json.loads(lines[-1])
+    try:
+        out = json.loads(lines[-1])
+    except json.JSONDecodeError as e:
+        raise RuntimeError(
+            f"ipc subprocess produced non-JSON tail line: {lines[-1]!r}. full stdout: {cp.stdout!r}, stderr: {cp.stderr!r}"
+        ) from e
     return BridgeResult(status=out["status"], score=float(out["score"]), result=out["result"])
