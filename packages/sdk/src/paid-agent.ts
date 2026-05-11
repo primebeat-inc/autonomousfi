@@ -1,4 +1,4 @@
-import type { MockChain } from './mock-chain.js';
+import type { ChainAdapter } from './chain.js';
 import type { QVACQualityVerifier } from './quality.js';
 import type { AgentAddress, Price, TaskSpec } from './types.js';
 
@@ -8,7 +8,9 @@ export interface PaidAgentOptions {
   readonly qualityThreshold: number;
   readonly deadlineMs: number;
   readonly providerAddress: AgentAddress;
-  readonly chain: MockChain;
+  /// Backend chain adapter. MockChain for in-memory tests / demos, ViemChainAdapter
+  /// for live testnet / mainnet. Same call surface either way.
+  readonly chain: ChainAdapter;
   readonly judge: QVACQualityVerifier;
 }
 
@@ -42,13 +44,13 @@ export function paidAgent<TInput extends Record<string, unknown>>(
         inputs: input
       };
 
-      opts.chain.escrowLock({
+      await opts.chain.escrowLock({
         taskHash,
         requester,
         provider: opts.providerAddress,
         price: opts.price
       });
-      opts.chain.hostageStake({
+      await opts.chain.hostageStake({
         taskHash,
         provider: opts.providerAddress,
         stake: opts.stake
@@ -60,20 +62,20 @@ export function paidAgent<TInput extends Record<string, unknown>>(
         const score = await opts.judge.evaluate(spec, result);
 
         if (score >= opts.qualityThreshold) {
-          opts.chain.escrowRelease(taskHash);
-          opts.chain.hostageRefund(taskHash);
+          await opts.chain.escrowRelease(taskHash);
+          await opts.chain.hostageRefund(taskHash);
           return { status: 'settled', result, score };
         } else {
-          opts.chain.escrowRefund(taskHash);
-          opts.chain.hostageSlash(taskHash, requester);
+          await opts.chain.escrowRefund(taskHash);
+          await opts.chain.hostageSlash(taskHash, requester);
           return { status: 'slashed', result, score };
         }
       } catch (e) {
         // impl or judge.evaluate threw: cleanup partial state to prevent escrow leak.
         // Provider gets slashed (responsibility for crashed code); requester gets refund.
         // Each cleanup is independently guarded so a double-slash on retry surfaces a clear error rather than silently corrupting state.
-        try { opts.chain.escrowRefund(taskHash); } catch { /* already resolved */ }
-        try { opts.chain.hostageSlash(taskHash, requester); } catch { /* already resolved */ }
+        try { await opts.chain.escrowRefund(taskHash); } catch { /* already resolved */ }
+        try { await opts.chain.hostageSlash(taskHash, requester); } catch { /* already resolved */ }
         throw e;
       }
     }
