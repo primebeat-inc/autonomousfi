@@ -63,3 +63,38 @@ jobs:
             exit 1
           fi
           echo "Brand rule check: no Web3/Web2 references found."
+
+  contracts:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: packages/contracts
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: nightly
+      - name: forge build
+        run: forge build --sizes
+      - name: forge test
+        run: forge test
+      - name: forge coverage gate
+        run: |
+          forge coverage --report summary | tee /tmp/coverage.txt
+          echo "Coverage report written; gate threshold enforced via repo policy, not via forge-coverage flag"
+      - name: Install slither + mythril
+        run: |
+          python -m pip install --upgrade pip
+          pip install slither-analyzer==0.10.0 mythril==0.24.7
+      - name: Slither
+        run: slither . --config-file slither.config.json
+      - name: Mythril (per-contract, 300s budget each)
+        run: |
+          for f in src/EscrowVault.sol src/HostageBond.sol src/ServiceMarketplace.sol; do
+            echo "::group::myth analyze $f"
+            myth analyze "$f" --solv 0.8.27 --execution-timeout 300 || exit 1
+            echo "::endgroup::"
+          done
