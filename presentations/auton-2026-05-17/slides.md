@@ -85,7 +85,7 @@ AUTON Program 2026 Kickoff / 2026年5月17日
 
 - 実行物: `demos/agent_to_agent_review.py` (in-memory mock、Phase 1 ステージ)
 - **シナリオ**: Agent A (依頼者) が Agent B (provider) に code review を依頼
-  - 約 30 秒以内に escrow lock → 担保 stake → 結果提出 → QVAC judge 採点 → USDT 決済 + reputation 加算
+  - 30 秒以下で escrow lock → 担保 stake → 結果提出 → QVAC judge 採点 → USDT 決済 + reputation 加算 (実測値は数秒)
 - **第 2 シナリオ**: provider が意図的に粗悪納品 → judge score 閾値割れ → hostage が依頼者へ slash + reputation failure 記録
 - いずれも実時間で確認できる
 - ※ 万一現地ネットワーク不調時に備え、同じ flow の録画版を `presentations/auton-2026-05-17/demo-recording.md` 経由で公開予定
@@ -118,7 +118,7 @@ AUTON Program 2026 Kickoff / 2026年5月17日
 
 - **GitHub**: `github.com/prime-beat/autonomousfi` 本日公開。star / issue / PR 大歓迎
 - **AUTON 採択スタートアップ向け**: SDK の早期 access + Prime Beat による 3 ヶ月間の Joint R&D サポート枠を確保。直接お声がけください
-- **商業企業向け**: Tech Partner としての Joint R&D 案件、agent 経済への参入支援 (トークン発行有無を問わず歓迎)。Prime Beat 営業窓口 / 渋谷直 DM
+- **商業企業向け**: Tech Partner としての Joint R&D 案件、ブロックチェーン活用に踏み込みたい企業の参入支援。Prime Beat 営業窓口 / 渋谷直 DM
 - **研究者向け**: Whuffie 論文 draft v3 (proof drafts、empirical 設計) を共有可能。査読・反論・共同実証実験を歓迎
 - **連絡先**: tatsunari (at) prime-beat.io / X: @shibutatsu / Discord: tatsunari_shibuya
 
