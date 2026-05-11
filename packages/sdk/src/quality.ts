@@ -8,17 +8,25 @@ export interface QualityJudge {
   judge(spec: TaskSpec, result: string): Promise<number>; // returns score in [0,1]
 }
 
+/** Score returned by the stub judge when the failure marker is hit. */
+export const STUB_FAILURE_SCORE = 0.1;
+
 export interface StubLLMJudgeOptions {
   readonly matchScore: number;
+  /** Substring marker that, when present in the result, forces a failure score. Empty string is forbidden. */
   readonly failOn?: string;
 }
 
 export class StubLLMJudge implements QualityJudge {
-  constructor(private readonly opts: StubLLMJudgeOptions) {}
+  constructor(private readonly opts: StubLLMJudgeOptions) {
+    if (opts.failOn !== undefined && opts.failOn.length === 0) {
+      throw new Error('StubLLMJudge: failOn must be a non-empty string when provided');
+    }
+  }
 
   async judge(_spec: TaskSpec, result: string): Promise<number> {
     if (this.opts.failOn !== undefined && result.includes(this.opts.failOn)) {
-      return 0.1;
+      return STUB_FAILURE_SCORE;
     }
     return this.opts.matchScore;
   }
