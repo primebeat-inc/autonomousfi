@@ -41,6 +41,7 @@ jobs:
           set -e
           if grep -rn '—' \
             --include='*.md' \
+            --exclude=CODE_OF_CONDUCT.md \
             --exclude-dir=node_modules \
             --exclude-dir=.venv \
             --exclude-dir=docs/superpowers \

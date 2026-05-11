@@ -1,0 +1,10 @@
+[package]
+name = "autonomousfi-circuits-host"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+autonomousfi-methods = { path = "../methods" }
+risc0-zkvm = { version = "1.0" }
+anyhow = "1"
