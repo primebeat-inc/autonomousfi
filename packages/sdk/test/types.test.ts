@@ -3,6 +3,10 @@ import {
   scoreToScaled,
   scaledToScore,
   isValidPrice,
+  asAgentAddress,
+  asTaskId,
+  asPrice,
+  MAX_U64,
   type TaskId,
   type Price
 } from '../src/types.js';
@@ -50,5 +54,57 @@ describe('scoreToScaled property: monotonicity', () => {
         }
       )
     );
+  });
+});
+
+describe('asAgentAddress', () => {
+  it('brands valid 0x-prefixed hex strings', () => {
+    expect(asAgentAddress('0xAAAA')).toBe('0xAAAA');
+    expect(asAgentAddress('0xdeadbeef')).toBe('0xdeadbeef');
+  });
+
+  it('rejects strings without 0x prefix', () => {
+    expect(() => asAgentAddress('AAAA')).toThrow(/0x-prefixed/);
+  });
+
+  it('rejects strings with non-hex characters', () => {
+    expect(() => asAgentAddress('0xZZZZ')).toThrow(/0x-prefixed/);
+  });
+
+  it('rejects bare 0x without hex body', () => {
+    expect(() => asAgentAddress('0x')).toThrow(/0x-prefixed/);
+  });
+
+  it('rejects empty string', () => {
+    expect(() => asAgentAddress('')).toThrow(/0x-prefixed/);
+  });
+});
+
+describe('asTaskId', () => {
+  it('brands non-empty strings', () => {
+    expect(asTaskId('task-1')).toBe('task-1');
+  });
+
+  it('rejects empty string', () => {
+    expect(() => asTaskId('')).toThrow(/empty/);
+  });
+});
+
+describe('asPrice', () => {
+  it('brands valid positive bigints', () => {
+    expect(asPrice(1n)).toBe(1n);
+    expect(asPrice(MAX_U64)).toBe(MAX_U64);
+  });
+
+  it('rejects zero', () => {
+    expect(() => asPrice(0n)).toThrow(/not in/);
+  });
+
+  it('rejects negative', () => {
+    expect(() => asPrice(-1n)).toThrow(/not in/);
+  });
+
+  it('rejects oversized values', () => {
+    expect(() => asPrice(MAX_U64 + 1n)).toThrow(/not in/);
   });
 });
