@@ -1,5 +1,5 @@
 ---
-title: AutonomousFi Agent — Design Spec
+title: "AutonomousFi Agent: Design Spec"
 status: draft (under review)
 authors: Tatsunari Shibuya (Prime Beat Inc.)
 date: 2026-05-11
@@ -9,7 +9,7 @@ related:
   - Tether Developer Grants Program
 ---
 
-# AutonomousFi Agent — Design Spec
+# AutonomousFi Agent: Design Spec
 
 ## 1. Overview
 
@@ -50,7 +50,7 @@ AutonomousFi Agent は、AI エージェントが別の AI エージェントへ
 
 ### 3.2 Secondary personas
 
-- **AI 研究者**: Whuffie 論文 / agent economy 研究者 — 実装データを参照
+- **AI 研究者**: Whuffie 論文 / agent economy 研究者。実装データを参照
 - **Tether ecosystem actor**: QVAC / WDK の flagship application として参照
 - **VC / 投資家**: Phase 4 で SaaS pivot 判断時の dilemmas に関与
 
@@ -315,7 +315,7 @@ zk-PoP × hostage stake (Whuffie M_H)。新規 provider は (1) PoP 取得 + (2)
 
 ### 10.1 特殊テスト
 
-- **Formal verification**: `ReputationRegistry` の monotonicity invariant (I2) を Certora で証明 — audit firm の付随サービスとして $10K 程度を見込む
+- **Formal verification**: `ReputationRegistry` の monotonicity invariant (I2) を Certora で証明。audit firm の付随サービスとして $10K 程度を見込む
 - **Adversarial test**: Sybil simulation (100 fake providers vs 1 honest) + collusion simulation (10 colluders) を Phase 3 empirical の一部として実施。既存 `whuffie/harness/` (Prime Beat の autoresearch harness) を拡張して使う
 - **Differential test**: QVAC local judge 結果と GPT-4o judge 結果を比較し、disagreement rate を測定。Phase 2 中に quality threshold を tuning
 
@@ -334,7 +334,7 @@ GitHub Actions → forge test + cargo test + vitest + Risc0 prove (mocked dev mo
 | 3 | Tether wave (Browser Ext) | reputation viewer browser extension | $4K | ReputationVerifier client UI | Phase 2 |
 | 4 | Tether wave (Docs) | onboarding ドキュメント + 動画チュートリアル | $1.5K | SDK docs site | Phase 2 |
 | 5 | Tether wave (QVAC SDK) | QVAC local LLM judge SDK | $3-5K | QVACQualityVerifier | Phase 2 |
-| 6 | Tether co-dev (research) | full SDK + Whuffie implementation report | $10-30K (TBD via direct negotiation with Tether — see OQ-11) | 全体 research artifact | Phase 2-3 |
+| 6 | Tether co-dev (research) | full SDK + Whuffie implementation report | $10-30K (TBD via direct negotiation with Tether, see OQ-11) | 全体 research artifact | Phase 2-3 |
 | 7 | EF Privacy & Scaling Explorations | "zk-PoP × hostage hybrid mechanism: a constructive resolution to the Whuffie problem" | $30-50K | ZK circuits + paper | Phase 1 末 |
 | 8 | Optimism RetroPGF | retroactive: SDK + circuits を OP に deploy 後申請 | $20K+ | retroactive | Phase 3-4 |
 | 9 | Base Builder Grants | Base deploy + USDC variant (optional) | $10K+ | secondary chain support | Phase 4 |
@@ -439,14 +439,14 @@ GitHub Actions → forge test + cargo test + vitest + Risc0 prove (mocked dev mo
 
 ### 14.1 Prime Beat internal
 
-- `~/.claude/projects/-Users-shibuyaryuukyou/memory/project_prime_beat_rd_theme_sybil.md` — Whuffie R&D 北極星 (合成研究選択 v3)
-- `~/.claude/projects/-Users-shibuyaryuukyou/memory/project_rd_proof_integrated_v1.md` — Theorem 1/2 integrated proof
-- `~/.claude/projects/-Users-shibuyaryuukyou/memory/project_rd_empirical_design_v1.md` — empirical 設計
-- `~/.claude/projects/-Users-shibuyaryuukyou/memory/project_whuffie_autoresearch_harness.md` — autoresearch harness
-- `~/.claude/projects/-Users-shibuyaryuukyou/memory/project_agentic_finance_portfolio.md` — Portfolio 再評価 (2026-04-13)
-- `~/.claude/projects/-Users-shibuyaryuukyou/memory/project_auton_program.md` — AUTON Program 概要
-- `~/Documents/PrimeBeat-Vault/10-Company/goals.md` — 今期目標 (1 億売上、Phase 1/2 ロードマップ)
-- `~/Documents/PrimeBeat-Vault/10-Company/philosophy.md` — AI ネイティブ設計原則
+- `~/.claude/projects/-Users-shibuyaryuukyou/memory/project_prime_beat_rd_theme_sybil.md`: Whuffie R&D 北極星 (合成研究選択 v3)
+- `~/.claude/projects/-Users-shibuyaryuukyou/memory/project_rd_proof_integrated_v1.md`: Theorem 1/2 integrated proof
+- `~/.claude/projects/-Users-shibuyaryuukyou/memory/project_rd_empirical_design_v1.md`: empirical 設計
+- `~/.claude/projects/-Users-shibuyaryuukyou/memory/project_whuffie_autoresearch_harness.md`: autoresearch harness
+- `~/.claude/projects/-Users-shibuyaryuukyou/memory/project_agentic_finance_portfolio.md`: Portfolio 再評価 (2026-04-13)
+- `~/.claude/projects/-Users-shibuyaryuukyou/memory/project_auton_program.md`: AUTON Program 概要
+- `~/Documents/PrimeBeat-Vault/10-Company/goals.md`: 今期目標 (1 億売上、Phase 1/2 ロードマップ)
+- `~/Documents/PrimeBeat-Vault/10-Company/philosophy.md`: AI ネイティブ設計原則
 
 ### 14.2 External
 
@@ -458,8 +458,8 @@ GitHub Actions → forge test + cargo test + vitest + Risc0 prove (mocked dev mo
 - CrewAI: https://github.com/joaomdmoura/crewAI
 - Anthropic Claude Agent SDK
 - EF Privacy & Scaling Explorations: https://pse.dev/
-- Hu & Chen (2025) "Insured Agents" — Whuffie 補完関係 (Prime Beat ADR-001 で正面対比)
-- Bahrani-Garimidi-Roughgarden (2024) "Sybil-Proof Transaction Fee Mechanisms" — Theorem 1 構造的踏襲根拠
+- Hu & Chen (2025) "Insured Agents": Whuffie 補完関係 (Prime Beat ADR-001 で正面対比)
+- Bahrani-Garimidi-Roughgarden (2024) "Sybil-Proof Transaction Fee Mechanisms": Theorem 1 構造的踏襲根拠
 
 ---
 
