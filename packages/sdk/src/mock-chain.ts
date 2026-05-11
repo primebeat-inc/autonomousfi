@@ -1,4 +1,4 @@
-import { AutonomousFiError, ERR_INSUFFICIENT_BALANCE, ERR_ALREADY_RELEASED, ERR_ALREADY_REFUNDED, ERR_UNKNOWN_TASK } from './errors.js';
+import { AutonomousFiError, ERR_INSUFFICIENT_BALANCE, ERR_ALREADY_RELEASED, ERR_ALREADY_REFUNDED, ERR_UNKNOWN_TASK, ERR_HOSTAGE_ALREADY_RESOLVED } from './errors.js';
 import type { AgentAddress, Price } from './types.js';
 
 type EscrowStatus = 'locked' | 'released' | 'refunded';
@@ -103,7 +103,7 @@ export class MockChain {
   hostageRefund(taskHash: `0x${string}`): void {
     const rec = this.hostages.get(taskHash);
     if (!rec) throw new AutonomousFiError(ERR_UNKNOWN_TASK, taskHash);
-    if (rec.status !== 'staked') throw new AutonomousFiError(ERR_ALREADY_RELEASED, taskHash);
+    if (rec.status !== 'staked') throw new AutonomousFiError(ERR_HOSTAGE_ALREADY_RESOLVED, taskHash);
     this.credit(rec.provider, rec.stake);
     rec.status = 'refunded';
   }
@@ -111,7 +111,7 @@ export class MockChain {
   hostageSlash(taskHash: `0x${string}`, recipient: AgentAddress): void {
     const rec = this.hostages.get(taskHash);
     if (!rec) throw new AutonomousFiError(ERR_UNKNOWN_TASK, taskHash);
-    if (rec.status !== 'staked') throw new AutonomousFiError(ERR_ALREADY_RELEASED, taskHash);
+    if (rec.status !== 'staked') throw new AutonomousFiError(ERR_HOSTAGE_ALREADY_RESOLVED, taskHash);
     this.credit(recipient, rec.stake);
     rec.status = 'slashed';
   }
