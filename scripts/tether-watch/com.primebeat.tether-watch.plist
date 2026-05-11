@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  macOS launchd job: run scripts/tether-watch/watch.sh once per day at 09:00 JST.
+
+  Install:
+    cp scripts/tether-watch/com.primebeat.tether-watch.plist ~/Library/LaunchAgents/
+    launchctl load ~/Library/LaunchAgents/com.primebeat.tether-watch.plist
+
+  Uninstall:
+    launchctl unload ~/Library/LaunchAgents/com.primebeat.tether-watch.plist
+    rm ~/Library/LaunchAgents/com.primebeat.tether-watch.plist
+
+  Inspect:
+    launchctl list | grep tether-watch
+    tail -f ~/.cache/tether-watch/watch.log
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.primebeat.tether-watch</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>/Users/shibuyaryuukyou/Documents/dev/agentic-finance/autonomousfi/scripts/tether-watch/watch.sh</string>
+        <string>check</string>
+    </array>
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>9</integer>
+        <key>Minute</key>
+        <integer>0</integer>
+    </dict>
+    <key>StandardOutPath</key>
+    <string>/Users/shibuyaryuukyou/.cache/tether-watch/launchd.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/Users/shibuyaryuukyou/.cache/tether-watch/launchd.stderr.log</string>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+    </dict>
+</dict>
+</plist>
