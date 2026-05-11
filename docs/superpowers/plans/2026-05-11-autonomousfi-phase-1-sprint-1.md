@@ -1,4 +1,4 @@
-# AutonomousFi Agent — Phase 1 / Sprint 1 Implementation Plan
+# AutonomousFi Agent: Phase 1 / Sprint 1 Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
@@ -98,7 +98,7 @@ autonomousfi/
 ```
 
 **Decomposition rationale:**
-- `mock-chain.ts` is a single-file in-memory ledger and is the only "magic" in Sprint 1 — it lets every other SDK module unit-test against a deterministic environment without testnet calls.
+- `mock-chain.ts` is a single-file in-memory ledger and is the only "magic" in Sprint 1, it lets every other SDK module unit-test against a deterministic environment without testnet calls.
 - `paid-agent.ts` is the public face of the SDK; everything else exists to support it.
 - `escrow.ts` / `hostage.ts` / `quality.ts` are kept as separate files now (vs. one big file) so Sprint 2 can swap the mock impl for a viem-backed impl without touching the decorator or its tests.
 - Solidity (`contracts/`) and Rust (`circuits/`) directories are scaffolded but left empty so the monorepo structure does not change between Sprint 1 and Sprint 2.
@@ -107,10 +107,10 @@ autonomousfi/
 
 ## Skills to load before starting
 
-- `superpowers:test-driven-development` — Sprint 1 is TDD-first
-- `superpowers:verification-before-completion` — every acceptance gate must be verified, not assumed
-- `everything-claude-code:typescript-reviewer` — invoke after each SDK task
-- (`superpowers:executing-plans` or `superpowers:subagent-driven-development` — chosen at execution handoff)
+- `superpowers:test-driven-development`: Sprint 1 is TDD-first
+- `superpowers:verification-before-completion`: every acceptance gate must be verified, not assumed
+- `everything-claude-code:typescript-reviewer`: invoke after each SDK task
+- (`superpowers:executing-plans` or `superpowers:subagent-driven-development`: chosen at execution handoff)
 
 ---
 
@@ -236,7 +236,7 @@ git commit -m "chore: pnpm workspace bootstrap with Apache-2.0 license"
 {
   "name": "@autonomousfi/sdk",
   "version": "0.0.1",
-  "description": "AutonomousFi SDK — agent-to-agent USDT payments with hostage reputation",
+  "description": "AutonomousFi SDK: agent-to-agent USDT payments with hostage reputation",
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -503,7 +503,7 @@ const A: AgentAddress = '0xAAAA' as AgentAddress;
 const B: AgentAddress = '0xBBBB' as AgentAddress;
 const TASK_HASH = '0xfeedface' as const;
 
-describe('MockChain — balances', () => {
+describe('MockChain: balances', () => {
   let chain: MockChain;
   beforeEach(() => { chain = new MockChain(); });
 
@@ -517,7 +517,7 @@ describe('MockChain — balances', () => {
   });
 });
 
-describe('MockChain — escrow', () => {
+describe('MockChain: escrow', () => {
   it('locks funds into an escrow and lets release pay the provider', () => {
     const chain = new MockChain();
     chain.mintUsdt(A, 1_000n);
@@ -547,7 +547,7 @@ describe('MockChain — escrow', () => {
   });
 });
 
-describe('MockChain — hostage stake', () => {
+describe('MockChain: hostage stake', () => {
   it('stakes from provider balance and slashes to requester on failure', () => {
     const chain = new MockChain();
     chain.mintUsdt(B, 200n);
@@ -863,7 +863,7 @@ describe('e2e: requester pays provider through @paid_agent', () => {
         chain,
         judge
       },
-      async (snippet: string) => `Reviewed: ${snippet} — looks good`
+      async (snippet: string) => `Reviewed: ${snippet}, looks good`
     );
 
     const out = await reviewCode.call(A, { snippet: 'function add(a,b){return a+b}' });
@@ -1166,7 +1166,7 @@ __all__ = ["PaidCrewAgent"]
 ```python
 """Subprocess bridge to the TypeScript SDK MockChain.
 
-Sprint 1 only — Sprint 2 replaces this with an HTTP service.
+Sprint 1 only, Sprint 2 replaces this with an HTTP service.
 """
 from __future__ import annotations
 import json
@@ -1293,7 +1293,7 @@ Expected: install resolves, typecheck still green.
 - [ ] **Step 5: Create `crewai_paidagent/plugin.py`**
 
 ```python
-"""PaidCrewAgent — wrap a CrewAI Agent so it bills counterparties through AutonomousFi.
+"""PaidCrewAgent: wrap a CrewAI Agent so it bills counterparties through AutonomousFi.
 
 Sprint 1 alpha: wraps the agent's `execute_task` to charge a fixed price and stake.
 """
@@ -1450,7 +1450,7 @@ The deck is markdown so it can be rendered with Marp or any other tool; the talk
 
 - [ ] **Step 1: Write keynote markdown `slides.md`**
 
-Treat the outline below as **Step 1 (skeleton commit)** only. The full slide bullets — speaker-facing narrative for 25-30 minutes — are written in **Step 1a (full authoring)** as a follow-up sub-task. CEO writes the final narrative; Claude Code expands the skeleton into draft bullets first.
+Treat the outline below as **Step 1 (skeleton commit)** only. The full slide bullets, speaker-facing narrative for 25-30 minutes, are written in **Step 1a (full authoring)** as a follow-up sub-task. CEO writes the final narrative; Claude Code expands the skeleton into draft bullets first.
 
 (Outline only here; the implementer writes full slide bullets, ~120 lines.)
 
