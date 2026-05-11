@@ -7,9 +7,7 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       include: ['src/**/*.ts'],
-      // Phase 1 Sprint 1 ramp-up: thresholds zeroed during Tasks 2-5 implementation.
-      // Restore 80/70/80/80 at the end of Task 5 once full e2e is in place.
-      thresholds: { lines: 0, branches: 0, functions: 0, statements: 0 }
+      thresholds: { lines: 80, branches: 70, functions: 80, statements: 80 }
     }
   }
 });
