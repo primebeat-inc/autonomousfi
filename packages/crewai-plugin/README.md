@@ -13,7 +13,7 @@ cd packages/crewai-plugin
 uv venv && uv pip install -e .[dev]
 ```
 
-If `crewai` cannot be installed (heavy LangChain tree), the plugin still works — it falls back to an `Agent = object` stub. Real CrewAI integration becomes mandatory only in Sprint 2.
+If `crewai` cannot be installed (heavy LangChain tree), the plugin still works. It falls back to an `Agent = object` stub. Real CrewAI integration becomes mandatory only in Sprint 2.
 
 ## Usage
 
