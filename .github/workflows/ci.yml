@@ -2,9 +2,18 @@ name: CI
 
 on:
   push:
-    branches: [master, main]
+    branches: [main]
   pull_request:
-    branches: [master, main]
+    branches: [main]
+
+# Default to least-privilege; bump per-job if a workflow needs more.
+permissions:
+  contents: read
+
+# Cancel in-progress runs for the same ref when a new push lands.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   sdk:
@@ -12,7 +21,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
-        with: { version: 9 }
+        with:
+          version: 9.12.0
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
@@ -21,3 +31,34 @@ jobs:
       - run: pnpm -r run typecheck
       - run: pnpm -r run test
       - run: pnpm -r run build
+
+  brand-rules:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Block em dashes in public-facing docs
+        run: |
+          set -e
+          if grep -rn '—' \
+            --include='*.md' \
+            --exclude-dir=node_modules \
+            --exclude-dir=.venv \
+            --exclude-dir=docs/superpowers \
+            .; then
+            echo "::error::Em dashes (—) are banned in public-facing docs per brand rule"
+            exit 1
+          fi
+          echo "Brand rule check: no em dashes found."
+      - name: Block Web3 / Web2 buzzwords in body content
+        run: |
+          set -e
+          if grep -rniE '\bweb ?[23]\b' \
+            --include='*.md' \
+            --exclude-dir=node_modules \
+            --exclude-dir=.venv \
+            --exclude-dir=docs/superpowers \
+            .; then
+            echo "::error::Web3 / Web2 banned in public-facing docs; use specific terms"
+            exit 1
+          fi
+          echo "Brand rule check: no Web3/Web2 references found."
