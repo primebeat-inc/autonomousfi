@@ -18,5 +18,7 @@ export {
   type PaidAgentConfig
 } from './types.js';
 export { AutonomousFiError } from './errors.js';
+export { plasmaTestnet, readPlasmaDeployment, type PlasmaDeployment } from './chains/index.js';
+export { ViemChainAdapter, type ViemChainAdapterConfig } from './clients/viem-adapter.js';
 
 export const SDK_VERSION = '0.1.0';
