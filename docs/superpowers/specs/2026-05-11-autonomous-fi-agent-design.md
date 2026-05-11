@@ -190,30 +190,43 @@ AutonomousFi Agent は、AI エージェントが別の AI エージェントへ
 - **(I1) Funds conservation**: `sum(EscrowVault.balances) + sum(HostageBond.balances) = total USDT held by protocol`
 - **(I2) Reputation monotonic upgrade**: `ReputationRegistry.threshold(B)` は recordCompletion でのみ上昇、recordFailure で下降。non-decreasing on the dimension of "ever-achieved threshold"
 - **(I3) PoP uniqueness**: 同一 human commitment に bind された address は marketplace 内で 1 つのみ
-- **(I4) No simultaneous double-stake**: `HostageBond.activeStakes(provider)` は同時に N 件以上 active にできない (N は config、初期 = 10)
+- **(I4) No simultaneous double-stake**: `HostageBond.activeStakes(provider)` は同時に N 件以上 active にできない (N は config、初期値 = 10。**first iteration value、Phase 2 bench + Phase 3 empirical で実測 tuning**)
 
 ## 7. ZK Design (詳細)
 
 ### 7.1 reputation_aggregator (Risc0 guest program)
 
+**Numeric encoding** (binding decision, do not vary between implementations):
+quality score は guest program 内で `u32` の scaled fixed-point として扱う。範囲 `[0, 1_000_000]` (= 1e6 scale、6 桁精度)。`f64` は Risc0 zkVM で non-trivial かつ implementer 間で挙動が分岐するため明示的に禁止。SDK の TypeScript public API では `number` (0.0-1.0 range) を許容し、circuit 入力前に `Math.round(score * 1_000_000)` で変換する。
+
 ```rust
 // guest program (executed inside Risc0 zkVM)
+struct TaskCompletion {
+    task_hash: [u8; 32],
+    counterparty_sig: Signature,
+    counterparty_pk: PublicKey,
+    score_scaled: u32,   // fixed-point: actual_score * 1_000_000, range [0, 1_000_000]
+}
+
 fn aggregate_reputation(
-    history: Vec<TaskCompletion>,  // private input (sealed)
-    threshold_count: u32,           // public input
-    threshold_quality: f64,         // public input
-    pop_proof: ZkPoPProof,          // public input (zkPassport/Worldcoin)
+    history: Vec<TaskCompletion>,    // private input (sealed)
+    threshold_count: u32,             // public input
+    threshold_quality_scaled: u32,    // public input (same 1e6 scale as score_scaled)
+    pop_proof: ZkPoPProof,            // public input (zkPassport/Worldcoin)
 ) -> Result<ReputationStatement> {
     // verify each completion is signed by the counterparty
     for c in &history {
         verify_ecdsa(c.counterparty_sig, c.task_hash, c.counterparty_pk)?;
     }
     let count = history.len() as u32;
-    let avg_quality = history.iter().map(|c| c.score).sum::<f64>() / count as f64;
+    // u64 accumulator to prevent overflow; result remains in 1e6 scale
+    let sum_scaled: u64 = history.iter().map(|c| c.score_scaled as u64).sum();
+    let avg_quality_scaled = (sum_scaled / count as u64) as u32;
     let pop_valid = verify_pop(pop_proof)?;
 
     Ok(ReputationStatement {
-        meets_threshold: count >= threshold_count && avg_quality >= threshold_quality,
+        meets_threshold: count >= threshold_count
+                      && avg_quality_scaled >= threshold_quality_scaled,
         pop_unique_human: pop_valid,
         provider_pk: derive_from_pop(pop_proof),
         history_commitment: keccak256(&history),
@@ -282,7 +295,7 @@ zk-PoP × hostage stake (Whuffie M_H)。新規 provider は (1) PoP 取得 + (2)
 
 - **Self-dealing**: requester と provider が同じ unique-human PoP の場合 reputation 加算なし (pop_attestation で human ID 比較)
 - **Collusion**: アカウントペアの相互推薦は ReputationRegistry で graph 検出 (Phase 2: heuristic、Phase 4: cryptographic via private set intersection)
-- **Bribery attack**: stake 額が reward の bribe potential 上限を超えるよう設計 (`minStake ≥ 0.5 × maxReward`)
+- **Bribery attack**: stake 額が reward の bribe potential 上限を超えるよう設計 (`minStake ≥ 0.5 × maxReward`。**first iteration ratio、Phase 2 game theory analysis + Phase 3 empirical で再校正**)
 
 ### 9.6 Audit checkpoints
 
@@ -321,7 +334,7 @@ GitHub Actions → forge test + cargo test + vitest + Risc0 prove (mocked dev mo
 | 3 | Tether wave (Browser Ext) | reputation viewer browser extension | $4K | ReputationVerifier client UI | Phase 2 |
 | 4 | Tether wave (Docs) | onboarding ドキュメント + 動画チュートリアル | $1.5K | SDK docs site | Phase 2 |
 | 5 | Tether wave (QVAC SDK) | QVAC local LLM judge SDK | $3-5K | QVACQualityVerifier | Phase 2 |
-| 6 | Tether co-dev (research) | full SDK + Whuffie implementation report | $10K? | 全体 research artifact | Phase 2-3 |
+| 6 | Tether co-dev (research) | full SDK + Whuffie implementation report | $10-30K (TBD via direct negotiation with Tether — see OQ-11) | 全体 research artifact | Phase 2-3 |
 | 7 | EF Privacy & Scaling Explorations | "zk-PoP × hostage hybrid mechanism: a constructive resolution to the Whuffie problem" | $30-50K | ZK circuits + paper | Phase 1 末 |
 | 8 | Optimism RetroPGF | retroactive: SDK + circuits を OP に deploy 後申請 | $20K+ | retroactive | Phase 3-4 |
 | 9 | Base Builder Grants | Base deploy + USDC variant (optional) | $10K+ | secondary chain support | Phase 4 |
@@ -404,7 +417,7 @@ GitHub Actions → forge test + cargo test + vitest + Risc0 prove (mocked dev mo
 - **Phase 1 → 2**: GitHub repo public + AUTON 登壇終了 + SDK 動くデモ + 30+ GitHub stars
 - **Phase 2 → 3**: audit 完了 + mainnet deploy ready + AUTON dogfooding 開始
 - **Phase 3 → 4**: empirical data 取得完了 + 論文 submission + grant 総額 $50K+ 確定
-- **Phase 4 → SaaS GO**: PMF signal 閾値クリア (active agents N ≥ 100, weekly tx volume ≥ 設定値, GitHub stars 500+)
+- **Phase 4 → SaaS GO**: PMF signal 閾値クリア (active agents N ≥ 100, weekly tx volume ≥ $5K USDT [first candidate threshold、Phase 3 中盤に Phase 4 GO/NO-GO meeting で確定], GitHub stars 500+)
 
 ## 13. Open Questions / Decisions Deferred
 
@@ -419,7 +432,8 @@ GitHub Actions → forge test + cargo test + vitest + Risc0 prove (mocked dev mo
 | OQ-7 | Dispute resolution Phase 2 構成 (3rd-party audit agent の選定基準) | Phase 2 中盤 | 社長 |
 | OQ-8 | Public release timing of SDK (Phase 1 末 vs Phase 2 末 audit 後) | Phase 1 末 | 社長 |
 | OQ-9 | VC pitch 開始 timing (Phase 3 末 vs Phase 4 初) | Phase 3 末 | 社長 |
-| OQ-10 | positioning 矛盾 ("コンサル会社" vs SaaS pivot) の memory/goals.md 反映タイミング | 本 spec 承認直後 | 社長 (本ブレストで議論済み、後続 task) |
+| OQ-10 | positioning 矛盾 ("コンサル会社" vs SaaS pivot) の memory/goals.md 反映タイミング | 本 spec 承認直後 | 社長 (本ブレストで議論済み、後続 task)。writing-plans output は本 deferral を明示的に restate して downstream confusion を防ぐ |
+| OQ-11 | Tether co-dev (research) grant の最終額面 ($10-30K range のどこに落ちるか) | Phase 1 末、Paolo Ardoino / Tether ecosystem lead 直接交渉時 | 社長 |
 
 ## 14. References
 
