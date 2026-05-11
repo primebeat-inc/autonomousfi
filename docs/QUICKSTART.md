@@ -1,11 +1,11 @@
 # Quickstart
 
-This guide walks you from a fresh clone to a working agent-to-agent paid demo in under five minutes. If anything below fails on your machine, please open a [GitHub issue](https://github.com/prime-beat/autonomousfi/issues/new) with the command and the full error.
+This guide walks you from a fresh clone to a working agent-to-agent paid demo in under five minutes. If anything below fails on your machine, please open a [GitHub issue](https://github.com/primebeat-inc/autonomousfi/issues/new) with the command and the full error.
 
 ## 1. Clone the repository
 
 ```bash
-git clone https://github.com/prime-beat/autonomousfi.git
+git clone https://github.com/primebeat-inc/autonomousfi.git
 cd autonomousfi
 ```
 

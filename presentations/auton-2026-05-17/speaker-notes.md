@@ -9,7 +9,7 @@
 
 ## 🔴 Pre-event CEO checklist (5/17 当日朝までに確定すること)
 
-- [ ] **Repo URL slug**: `prime-beat/autonomousfi` のままで public 化するか、別 GitHub org 名を使うか確定 (slides.md L62, L119)
+- [ ] **Repo URL slug**: `primebeat-inc/autonomousfi` のままで public 化するか、別 GitHub org 名を使うか確定 (slides.md L62, L119)
 - [ ] **License (OQ-1)**: Apache 2.0 確定なら slides.md L62 から「候補」を削除
 - [ ] **連絡先確認**: メール `tatsunari (at) prime-beat.io`、X `@shibutatsu`、Discord `tatsunari_shibuya` の表記 (slides.md L123)
 - [ ] **共著オファー wording**: slides.md L103 の「共著オファー検討可」は採択者個別交渉前提。softer wording に変更するか判断

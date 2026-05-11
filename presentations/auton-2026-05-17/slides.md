@@ -59,7 +59,7 @@ AUTON Program 2026 Kickoff / 2026年5月17日
 
 ## 5. AutonomousFi Agent の紹介
 
-- 本日 public 化: `prime-beat/autonomousfi` (Apache 2.0 候補、ライセンスは Phase 1 末確定)
+- 本日 public 化: `primebeat-inc/autonomousfi` (Apache 2.0 候補、ライセンスは Phase 1 末確定)
 - Whuffie 論文 Theorem 2 の構成的メカニズムを「動く SDK」として実装した、agent-to-agent 決済 + 信用基盤
 - **縦統合スタック**:
   - **Tether QVAC**: オンデバイスで稼働するローカル LLM judge
@@ -116,7 +116,7 @@ AUTON Program 2026 Kickoff / 2026年5月17日
 
 ## 10. オープンコール (Open Call)
 
-- **GitHub**: `github.com/prime-beat/autonomousfi` 本日公開。star / issue / PR 大歓迎
+- **GitHub**: `github.com/primebeat-inc/autonomousfi` 本日公開。star / issue / PR 大歓迎
 - **AUTON 採択スタートアップ向け**: SDK の早期 access + Prime Beat による 3 ヶ月間の Joint R&D サポート枠を確保。直接お声がけください
 - **商業企業向け**: Tech Partner としての Joint R&D 案件、ブロックチェーン活用に踏み込みたい企業の参入支援。Prime Beat 営業窓口 / 渋谷直 DM
 - **研究者向け**: Whuffie 論文 draft v3 (proof drafts、empirical 設計) を共有可能。査読・反論・共同実証実験を歓迎

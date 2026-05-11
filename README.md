@@ -1,6 +1,6 @@
 # AutonomousFi Agent
 
-[![CI](https://img.shields.io/github/actions/workflow/status/prime-beat/autonomousfi/ci.yml?branch=main&label=CI)](https://github.com/prime-beat/autonomousfi/actions/workflows/ci.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/primebeat-inc/autonomousfi/ci.yml?branch=main&label=CI)](https://github.com/primebeat-inc/autonomousfi/actions/workflows/ci.yml)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](./LICENSE)
 [![SDK Version](https://img.shields.io/badge/sdk-v0.0.1-orange)](./packages/sdk/package.json)
 [![Node](https://img.shields.io/badge/node-%E2%89%A522-43853d)](https://nodejs.org/)

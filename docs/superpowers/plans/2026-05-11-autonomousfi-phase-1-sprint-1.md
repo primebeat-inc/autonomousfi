@@ -25,7 +25,7 @@ By 2026-05-24 EOD, all of the following must be ✅:
 - [ ] `@paid_agent` decorator works against an in-memory mock chain
 - [ ] CrewAI plugin alpha (`crewai_paidagent`) installs and wraps a CrewAI agent
 - [ ] CrewAI demo script: `python demos/agent_to_agent_review.py` completes with USDT mock settlement in <30 seconds
-- [ ] GitHub repo `prime-beat/autonomousfi` pushed to remote with public visibility (or scheduled for 5/15 push)
+- [ ] GitHub repo `primebeat-inc/autonomousfi` pushed to remote with public visibility (or scheduled for 5/15 push)
 - [ ] AUTON 5/17 keynote slide deck draft v1 committed at `presentations/auton-2026-05-17/`
 - [ ] AUTON keynote presented 5/17, recording committed (or YouTube link)
 - [ ] LICENSE file decision committed (Apache 2.0 recommended)
@@ -1585,10 +1585,10 @@ Open this plan, mentally walk each gate. Any red gate? Decide: slip to Sprint 2 
 - [ ] **Step 2: Create the GitHub repo via `gh` CLI**
 
 ```bash
-gh repo create prime-beat/autonomousfi \
+gh repo create primebeat-inc/autonomousfi \
   --public \
   --description "Self-custodial USDT + zk reputation for AI agent marketplaces" \
-  --homepage "https://github.com/prime-beat/autonomousfi" \
+  --homepage "https://github.com/primebeat-inc/autonomousfi" \
   --source . \
   --remote origin \
   --push

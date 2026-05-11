@@ -353,7 +353,7 @@ GitHub Actions → forge test + cargo test + vitest + Risc0 prove (mocked dev mo
 ├── 5月 ───────────────────────────────────────────────────────
 │   Phase 1 開始
 │   [5/12 spec freeze 候補] design spec 確定 + writing-plans へ移行
-│   [5/15-5/16] GitHub repo `prime-beat/autonomousfi` public
+│   [5/15-5/16] GitHub repo `primebeat-inc/autonomousfi` public
 │                README, vision, MEMORY 一新
 │   [5/17] AUTON キックオフ登壇
 │           "The Whuffie Problem in Practice"
