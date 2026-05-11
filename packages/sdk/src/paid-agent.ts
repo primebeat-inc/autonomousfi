@@ -51,18 +51,27 @@ export function paidAgent<TInput extends Record<string, unknown>>(
         stake: opts.stake
       });
 
-      const args = Object.values(input);
-      const result = await impl(...args);
-      const score = await opts.judge.evaluate(spec, result);
+      try {
+        const args = Object.values(input);
+        const result = await impl(...args);
+        const score = await opts.judge.evaluate(spec, result);
 
-      if (score >= opts.qualityThreshold) {
-        opts.chain.escrowRelease(taskHash);
-        opts.chain.hostageRefund(taskHash);
-        return { status: 'settled', result, score };
-      } else {
-        opts.chain.escrowRefund(taskHash);
-        opts.chain.hostageSlash(taskHash, requester);
-        return { status: 'slashed', result, score };
+        if (score >= opts.qualityThreshold) {
+          opts.chain.escrowRelease(taskHash);
+          opts.chain.hostageRefund(taskHash);
+          return { status: 'settled', result, score };
+        } else {
+          opts.chain.escrowRefund(taskHash);
+          opts.chain.hostageSlash(taskHash, requester);
+          return { status: 'slashed', result, score };
+        }
+      } catch (e) {
+        // impl or judge.evaluate threw: cleanup partial state to prevent escrow leak.
+        // Provider gets slashed (responsibility for crashed code); requester gets refund.
+        // Each cleanup is independently guarded so a double-slash on retry surfaces a clear error rather than silently corrupting state.
+        try { opts.chain.escrowRefund(taskHash); } catch { /* already resolved */ }
+        try { opts.chain.hostageSlash(taskHash, requester); } catch { /* already resolved */ }
+        throw e;
       }
     }
   };
