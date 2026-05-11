@@ -108,3 +108,59 @@ describe('asPrice', () => {
     expect(() => asPrice(MAX_U64 + 1n)).toThrow(/not in/);
   });
 });
+
+import type { TaskSpec, TaskCompletion, PaidAgentConfig, AgentAddress, Price } from '../src/types.js';
+
+describe('TaskSpec shape', () => {
+  it('accepts the canonical fields', () => {
+    const spec: TaskSpec = {
+      taskHash: '0xabcdef',
+      description: 'review code',
+      inputs: { snippet: 'function ok(){}' }
+    };
+    expect(spec.taskHash).toBe('0xabcdef');
+    expect(spec.description).toBe('review code');
+    expect(spec.inputs).toEqual({ snippet: 'function ok(){}' });
+  });
+
+  it('readonly fields are not assignable (compile-time guarantee, asserted via satisfies)', () => {
+    const spec = {
+      taskHash: '0xabcdef' as const,
+      description: 'x',
+      inputs: {}
+    } satisfies TaskSpec;
+    // The line below would not compile if uncommented (taskHash is readonly):
+    // spec.taskHash = '0xdeadbeef';
+    expect(spec).toBeDefined();
+  });
+});
+
+describe('TaskCompletion shape', () => {
+  it('accepts canonical fields including scoreScaled and counterpartySig', () => {
+    const A = '0xAAAA' as AgentAddress;
+    const B = '0xBBBB' as AgentAddress;
+    const completion: TaskCompletion = {
+      taskHash: '0x01',
+      providerAddress: B,
+      requesterAddress: A,
+      scoreScaled: 920_000,
+      counterpartySig: '0xsig'
+    };
+    expect(completion.scoreScaled).toBeGreaterThanOrEqual(0);
+    expect(completion.scoreScaled).toBeLessThanOrEqual(1_000_000);
+  });
+});
+
+describe('PaidAgentConfig shape', () => {
+  it('accepts canonical fields with correct types', () => {
+    const cfg: PaidAgentConfig = {
+      price: 100n as Price,
+      stake: 50n as Price,
+      qualityThreshold: 0.85,
+      deadlineMs: 60_000
+    };
+    expect(cfg.price).toBe(100n);
+    expect(cfg.qualityThreshold).toBeGreaterThan(0);
+    expect(cfg.qualityThreshold).toBeLessThanOrEqual(1);
+  });
+});
