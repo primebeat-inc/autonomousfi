@@ -9,13 +9,13 @@
 
 ## 🔴 Pre-event CEO checklist (5/17 当日朝までに確定すること)
 
-- [ ] **Repo URL slug** — `prime-beat/autonomousfi` のままで public 化するか、別 GitHub org 名を使うか確定 (slides.md L62, L119)
-- [ ] **License (OQ-1)** — Apache 2.0 確定なら slides.md L62 から「候補」を削除
-- [ ] **連絡先確認** — メール `tatsunari (at) prime-beat.io`、X `@shibutatsu`、Discord `tatsunari_shibuya` の表記 (slides.md L123)
-- [ ] **共著オファー wording** — slides.md L103 の「共著オファー検討可」は採択者個別交渉前提。softer wording に変更するか判断
-- [ ] **デモタイミング** — Task 7 実測 5.7 秒。slides.md L88 は「30 秒以下」表記なので safe。リハーサルで再確認
-- [ ] **デモ録画 backup** — `presentations/auton-2026-05-17/demo-recording.md` 経路を確認、現地ネットワーク不調時に切替可能か
-- [ ] **登壇環境** — ノート PC で `time python demos/agent_to_agent_review.py` を 5/17 当日朝に smoke test
+- [ ] **Repo URL slug**: `prime-beat/autonomousfi` のままで public 化するか、別 GitHub org 名を使うか確定 (slides.md L62, L119)
+- [ ] **License (OQ-1)**: Apache 2.0 確定なら slides.md L62 から「候補」を削除
+- [ ] **連絡先確認**: メール `tatsunari (at) prime-beat.io`、X `@shibutatsu`、Discord `tatsunari_shibuya` の表記 (slides.md L123)
+- [ ] **共著オファー wording**: slides.md L103 の「共著オファー検討可」は採択者個別交渉前提。softer wording に変更するか判断
+- [ ] **デモタイミング**: Task 7 実測 5.7 秒。slides.md L88 は「30 秒以下」表記なので safe。リハーサルで再確認
+- [ ] **デモ録画 backup**: `presentations/auton-2026-05-17/demo-recording.md` 経路を確認、現地ネットワーク不調時に切替可能か
+- [ ] **登壇環境**: ノート PC で `time python demos/agent_to_agent_review.py` を 5/17 当日朝に smoke test
 
 ---
 
