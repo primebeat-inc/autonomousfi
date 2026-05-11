@@ -14,3 +14,10 @@ forge-cache/
 out/
 broadcast/
 artifacts/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
