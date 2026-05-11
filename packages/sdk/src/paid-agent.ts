@@ -20,16 +20,19 @@ export interface PaidAgentHandle<TInput> {
   call(requester: AgentAddress, input: TInput): Promise<PaidAgentOutcome>;
 }
 
-let taskCounter = 0;
-function nextTaskHash(): `0x${string}` {
-  taskCounter += 1;
-  return `0x${taskCounter.toString(16).padStart(8, '0')}` as `0x${string}`;
-}
-
 export function paidAgent<TInput extends Record<string, unknown>>(
   opts: PaidAgentOptions,
   impl: (...args: unknown[]) => Promise<string>
 ): PaidAgentHandle<TInput> {
+  // Closure-scoped counter prevents collisions across paidAgent instances.
+  // Sprint 3 will swap this for a content-addressed hash (keccak256 of task spec)
+  // so the on-chain task identifier matches Solidity's bytes32 storage key.
+  let taskCounter = 0;
+  function nextTaskHash(): `0x${string}` {
+    taskCounter += 1;
+    return `0x${taskCounter.toString(16).padStart(8, '0')}` as `0x${string}`;
+  }
+
   return {
     async call(requester: AgentAddress, input: TInput): Promise<PaidAgentOutcome> {
       const taskHash = nextTaskHash();
