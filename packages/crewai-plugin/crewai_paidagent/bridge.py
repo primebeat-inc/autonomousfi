@@ -1,6 +1,9 @@
-"""Subprocess bridge to the TypeScript SDK MockChain.
+"""Bridge to the AutonomousFi SDK.
 
-Sprint 1 only — Sprint 2 replaces this with an HTTP service.
+Two dispatch paths:
+- HTTP fallback (Sprint 3 Task 10): when ``AUTONOMOUSFI_HTTP_URL`` is set,
+  POST to ``{url}/v1/paid-agent``.
+- Subprocess (Sprint 1 default): shell out to the TS IPC over pnpm.
 """
 from __future__ import annotations
 import json
@@ -9,6 +12,8 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+import httpx
 
 
 @dataclass
@@ -30,6 +35,68 @@ def _find_repo_root() -> Path:
 
 def invoke_paid_agent(
     *,
+    price: int,
+    stake: int,
+    quality_threshold: float,
+    provider_address: str,
+    requester_address: str,
+    input_payload: dict[str, Any],
+    result_text: str,
+) -> BridgeResult:
+    http_url = os.environ.get("AUTONOMOUSFI_HTTP_URL")
+    if http_url:
+        return _invoke_via_http(
+            http_url,
+            price,
+            stake,
+            quality_threshold,
+            provider_address,
+            requester_address,
+            input_payload,
+            result_text,
+        )
+    return _invoke_via_subprocess(
+        price,
+        stake,
+        quality_threshold,
+        provider_address,
+        requester_address,
+        input_payload,
+        result_text,
+    )
+
+
+def _invoke_via_http(
+    url: str,
+    price: int,
+    stake: int,
+    quality_threshold: float,
+    provider_address: str,
+    requester_address: str,
+    input_payload: dict[str, Any],
+    result_text: str,
+) -> BridgeResult:
+    response = httpx.post(
+        f"{url}/v1/paid-agent",
+        json={
+            "price": price,
+            "stake": stake,
+            "quality_threshold": quality_threshold,
+            "provider_address": provider_address,
+            "requester_address": requester_address,
+            "input_payload": input_payload,
+            "result_text": result_text,
+        },
+        timeout=30.0,
+    )
+    response.raise_for_status()
+    data = response.json()
+    return BridgeResult(
+        status=data["status"], score=float(data["score"]), result=data["result"]
+    )
+
+
+def _invoke_via_subprocess(
     price: int,
     stake: int,
     quality_threshold: float,
