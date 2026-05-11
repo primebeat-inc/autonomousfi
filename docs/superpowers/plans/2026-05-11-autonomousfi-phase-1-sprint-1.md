@@ -1172,10 +1172,7 @@ from __future__ import annotations
 import json
 import subprocess
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
-
-SDK_INVOKER = Path(__file__).resolve().parents[3] / "packages" / "sdk" / "scripts" / "ipc.ts"
 
 
 @dataclass
@@ -1284,6 +1281,14 @@ Add an `ipc` script to `packages/sdk/package.json`:
   }
 }
 ```
+
+After editing the SDK `package.json` to add `tsx`, re-run `pnpm install` at the workspace root so the new devDep is fetched and the `ipc` script becomes invokable:
+
+```bash
+pnpm install
+pnpm --filter @autonomousfi/sdk run typecheck
+```
+Expected: install resolves, typecheck still green.
 
 - [ ] **Step 5: Create `crewai_paidagent/plugin.py`**
 
@@ -1444,6 +1449,8 @@ git commit -m "feat(crewai-plugin): alpha PaidCrewAgent wrapper + AUTON demo scr
 The deck is markdown so it can be rendered with Marp or any other tool; the talk audience is the AUTON kickoff (SMBC日興 / 東大IPC / Fracton / Next Finance Tech / 採択スタートアップ). Effort target: 12-18 slides, 25-30 minute talk, 5 minute live demo, 5 minute Q&A.
 
 - [ ] **Step 1: Write keynote markdown `slides.md`**
+
+Treat the outline below as **Step 1 (skeleton commit)** only. The full slide bullets — speaker-facing narrative for 25-30 minutes — are written in **Step 1a (full authoring)** as a follow-up sub-task. CEO writes the final narrative; Claude Code expands the skeleton into draft bullets first.
 
 (Outline only here; the implementer writes full slide bullets, ~120 lines.)
 
