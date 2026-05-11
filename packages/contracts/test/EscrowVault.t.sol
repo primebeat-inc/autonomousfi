@@ -101,4 +101,83 @@ contract EscrowVaultTest is Test {
         vm.expectRevert(abi.encodeWithSelector(IEscrowVault.AlreadyRefunded.selector, TASK));
         vault.refund(TASK);
     }
+
+    function test_releaseOfRefundedReverts() public {
+        _lock(1_000, block.timestamp + 1 hours);
+        vm.warp(block.timestamp + 2 hours);
+        vault.refund(TASK);
+        vm.prank(operator);
+        vm.expectRevert(abi.encodeWithSelector(IEscrowVault.AlreadyRefunded.selector, TASK));
+        vault.release(TASK);
+    }
+
+    function test_refundUnknownReverts() public {
+        bytes32 other = bytes32(uint256(0xfacefeed));
+        vm.expectRevert(abi.encodeWithSelector(IEscrowVault.UnknownTask.selector, other));
+        vault.refund(other);
+    }
+}
+
+contract EscrowVaultFuzzTest is Test {
+    EscrowVault vault;
+    MockERC20 token;
+    address operator = address(0x0BBE);
+
+    function setUp() public {
+        token = new MockERC20("USDT", "USDT", 6);
+        vault = new EscrowVault(address(token), operator);
+    }
+
+    function testFuzz_lockAndReleaseIsBalancePreserving(
+        address requester,
+        address provider,
+        bytes32 taskHash,
+        uint256 amount,
+        uint256 deadline
+    ) public {
+        vm.assume(requester != address(0) && provider != address(0) && requester != provider);
+        vm.assume(requester != address(vault) && provider != address(vault));
+        vm.assume(amount > 0 && amount < type(uint128).max);
+        vm.assume(deadline > block.timestamp && deadline < type(uint64).max);
+
+        token.mint(requester, amount);
+        vm.prank(requester);
+        token.approve(address(vault), amount);
+
+        uint256 totalBefore = token.balanceOf(requester) + token.balanceOf(provider);
+        vm.prank(operator);
+        vault.lock(requester, provider, taskHash, amount, deadline);
+        vm.prank(operator);
+        vault.release(taskHash);
+
+        uint256 totalAfter = token.balanceOf(requester) + token.balanceOf(provider);
+        assertEq(totalAfter, totalBefore);
+        assertEq(token.balanceOf(provider), amount);
+    }
+
+    function testFuzz_lockAndRefundIsBalancePreserving(
+        address requester,
+        address provider,
+        bytes32 taskHash,
+        uint256 amount,
+        uint256 deadline
+    ) public {
+        vm.assume(requester != address(0) && provider != address(0) && requester != provider);
+        vm.assume(requester != address(vault) && provider != address(vault));
+        vm.assume(amount > 0 && amount < type(uint128).max);
+        vm.assume(deadline > block.timestamp && deadline < block.timestamp + 365 days);
+
+        token.mint(requester, amount);
+        vm.prank(requester);
+        token.approve(address(vault), amount);
+
+        uint256 reqBefore = token.balanceOf(requester);
+        vm.prank(operator);
+        vault.lock(requester, provider, taskHash, amount, deadline);
+        vm.warp(deadline + 1);
+        vault.refund(taskHash);
+
+        assertEq(token.balanceOf(requester), reqBefore);
+        assertEq(token.balanceOf(provider), 0);
+    }
 }
