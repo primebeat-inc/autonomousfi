@@ -6,7 +6,7 @@ const A: AgentAddress = '0xAAAA' as AgentAddress;
 const B: AgentAddress = '0xBBBB' as AgentAddress;
 const TASK_HASH = '0xfeedface' as const;
 
-describe('MockChain — balances', () => {
+describe('MockChain - balances', () => {
   let chain: MockChain;
   beforeEach(() => { chain = new MockChain(); });
 
@@ -20,7 +20,7 @@ describe('MockChain — balances', () => {
   });
 });
 
-describe('MockChain — escrow', () => {
+describe('MockChain - escrow', () => {
   it('locks funds into an escrow and lets release pay the provider', () => {
     const chain = new MockChain();
     chain.mintUsdt(A, 1_000n);
@@ -50,7 +50,7 @@ describe('MockChain — escrow', () => {
   });
 });
 
-describe('MockChain — hostage stake', () => {
+describe('MockChain - hostage stake', () => {
   it('stakes from provider balance and slashes to requester on failure', () => {
     const chain = new MockChain();
     chain.mintUsdt(B, 200n);
@@ -66,5 +66,96 @@ describe('MockChain — hostage stake', () => {
     chain.hostageStake({ taskHash: TASK_HASH, provider: B, stake: 50n as Price });
     chain.hostageRefund(TASK_HASH);
     expect(chain.getUsdtBalance(B)).toBe(200n);
+  });
+
+  it('rejects refunding an unknown task', () => {
+    const chain = new MockChain();
+    expect(() => chain.hostageRefund('0xdeadbeef' as `0x${string}`)).toThrow(/unknown task/);
+  });
+
+  it('rejects slashing an unknown task', () => {
+    const chain = new MockChain();
+    expect(() => chain.hostageSlash('0xdeadbeef' as `0x${string}`, A)).toThrow(/unknown task/);
+  });
+
+  it('rejects double refund (status: refunded already)', () => {
+    const chain = new MockChain();
+    chain.mintUsdt(B, 200n);
+    chain.hostageStake({ taskHash: TASK_HASH, provider: B, stake: 50n as Price });
+    chain.hostageRefund(TASK_HASH);
+    expect(() => chain.hostageRefund(TASK_HASH)).toThrow(/hostage already resolved/);
+  });
+
+  it('rejects slashing after refund', () => {
+    const chain = new MockChain();
+    chain.mintUsdt(B, 200n);
+    chain.hostageStake({ taskHash: TASK_HASH, provider: B, stake: 50n as Price });
+    chain.hostageRefund(TASK_HASH);
+    expect(() => chain.hostageSlash(TASK_HASH, A)).toThrow(/hostage already resolved/);
+  });
+});
+
+describe('MockChain - escrowRefund', () => {
+  it('returns price to requester and marks refunded', () => {
+    const chain = new MockChain();
+    chain.mintUsdt(A, 500n);
+    chain.escrowLock({ taskHash: TASK_HASH, requester: A, provider: B, price: 100n as Price });
+    expect(chain.getUsdtBalance(A)).toBe(400n);
+    chain.escrowRefund(TASK_HASH);
+    expect(chain.getUsdtBalance(A)).toBe(500n);
+    expect(chain.getEscrowStatus(TASK_HASH)).toBe('refunded');
+  });
+
+  it('rejects refunding an unknown task', () => {
+    const chain = new MockChain();
+    expect(() => chain.escrowRefund('0xdeadbeef' as `0x${string}`)).toThrow(/unknown task/);
+  });
+
+  it('rejects refunding an already-released escrow', () => {
+    const chain = new MockChain();
+    chain.mintUsdt(A, 500n);
+    chain.escrowLock({ taskHash: TASK_HASH, requester: A, provider: B, price: 100n as Price });
+    chain.escrowRelease(TASK_HASH);
+    expect(() => chain.escrowRefund(TASK_HASH)).toThrow(/already released/);
+  });
+
+  it('rejects releasing an already-refunded escrow', () => {
+    const chain = new MockChain();
+    chain.mintUsdt(A, 500n);
+    chain.escrowLock({ taskHash: TASK_HASH, requester: A, provider: B, price: 100n as Price });
+    chain.escrowRefund(TASK_HASH);
+    expect(() => chain.escrowRelease(TASK_HASH)).toThrow(/already refunded/);
+  });
+});
+
+describe('MockChain - invariants', () => {
+  it('preserves total balance through full escrow + hostage settle cycle', () => {
+    const chain = new MockChain();
+    chain.mintUsdt(A, 1_000n);
+    chain.mintUsdt(B, 1_000n);
+    const totalBefore = chain.getUsdtBalance(A) + chain.getUsdtBalance(B);
+
+    chain.escrowLock({ taskHash: TASK_HASH, requester: A, provider: B, price: 100n as Price });
+    chain.hostageStake({ taskHash: TASK_HASH, provider: B, stake: 50n as Price });
+    chain.escrowRelease(TASK_HASH);
+    chain.hostageRefund(TASK_HASH);
+
+    const totalAfter = chain.getUsdtBalance(A) + chain.getUsdtBalance(B);
+    expect(totalAfter).toBe(totalBefore);
+  });
+
+  it('preserves total balance through full escrow + hostage slash cycle', () => {
+    const chain = new MockChain();
+    chain.mintUsdt(A, 1_000n);
+    chain.mintUsdt(B, 1_000n);
+    const totalBefore = chain.getUsdtBalance(A) + chain.getUsdtBalance(B);
+
+    chain.escrowLock({ taskHash: TASK_HASH, requester: A, provider: B, price: 100n as Price });
+    chain.hostageStake({ taskHash: TASK_HASH, provider: B, stake: 50n as Price });
+    chain.escrowRefund(TASK_HASH);
+    chain.hostageSlash(TASK_HASH, A);
+
+    const totalAfter = chain.getUsdtBalance(A) + chain.getUsdtBalance(B);
+    expect(totalAfter).toBe(totalBefore);
   });
 });
